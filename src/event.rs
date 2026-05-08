@@ -72,6 +72,8 @@ pub enum KeyCode {
     Down,
     /// Tab key
     Tab,
+    /// Shift+Tab (reverse tab)
+    BackTab,
     /// Delete key
     Delete,
     /// Home key
@@ -129,6 +131,7 @@ impl From<web_sys::KeyboardEvent> for KeyCode {
             "ArrowRight" => KeyCode::Right,
             "ArrowUp" => KeyCode::Up,
             "ArrowDown" => KeyCode::Down,
+            "Tab" if event.shift_key() => KeyCode::BackTab,
             "Tab" => KeyCode::Tab,
             "Delete" => KeyCode::Delete,
             "Home" => KeyCode::Home,
