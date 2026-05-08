@@ -475,6 +475,11 @@ impl Backend for DomBackend {
                 .map_err(Error::from)?;
             self.populate()?;
             self.install_hyperlink_click_handler()?;
+
+            // Auto-focus the grid so keyboard events are captured immediately.
+            if let Some(html_el) = self.grid.dyn_ref::<web_sys::HtmlElement>() {
+                let _ = html_el.focus();
+            }
         }
 
         // Track which rows have hyperlink structure changes (need full DOM
