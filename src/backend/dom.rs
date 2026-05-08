@@ -235,7 +235,7 @@ impl DomBackend {
         let pre = document.create_element("pre")?;
         pre.set_attribute(
             "style",
-            "margin: 0; padding: 0; border: 0; line-height: normal;",
+            "margin: 0; padding: 0; border: 0; line-height: normal; font-family: inherit;",
         )?;
         let span = document.create_element("span")?;
         span.set_inner_html("\u{2588}");
@@ -308,7 +308,7 @@ impl DomBackend {
             // Create a <pre> element for the line
             let pre = self.document.create_element("pre")?;
             let line_height = format!(
-                "margin: 0; padding: 0; border: 0; height: {}px; line-height: {}px;",
+                "margin: 0; padding: 0; border: 0; font-family: inherit; height: {}px; line-height: {}px;",
                 self.cell_size.1, self.cell_size.1
             );
             pre.set_attribute("style", &line_height)?;
