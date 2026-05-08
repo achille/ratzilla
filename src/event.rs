@@ -9,6 +9,8 @@ pub struct KeyEvent {
     pub alt: bool,
     /// Whether the shift key is pressed.
     pub shift: bool,
+    /// Whether the meta key (Command on Mac, Windows key on PC) is pressed.
+    pub meta: bool,
 }
 
 /// A mouse event with terminal grid coordinates.
@@ -38,11 +40,13 @@ impl From<web_sys::KeyboardEvent> for KeyEvent {
         let ctrl = event.ctrl_key();
         let alt = event.alt_key();
         let shift = event.shift_key();
+        let meta = event.meta_key();
         KeyEvent {
             code: event.into(),
             ctrl,
             alt,
             shift,
+            meta,
         }
     }
 }
@@ -80,6 +84,16 @@ pub enum KeyCode {
     PageDown,
     /// Escape key
     Esc,
+    /// Meta key (Command on Mac, Windows key on PC)
+    Meta,
+    /// Control key
+    Control,
+    /// Alt/Option key
+    Alt,
+    /// Shift key
+    Shift,
+    /// CapsLock key
+    CapsLock,
     /// Unidentified.
     Unidentified,
 }
@@ -122,6 +136,11 @@ impl From<web_sys::KeyboardEvent> for KeyCode {
             "PageUp" => KeyCode::PageUp,
             "PageDown" => KeyCode::PageDown,
             "Escape" => KeyCode::Esc,
+            "Meta" => KeyCode::Meta,
+            "Control" => KeyCode::Control,
+            "Alt" => KeyCode::Alt,
+            "Shift" => KeyCode::Shift,
+            "CapsLock" => KeyCode::CapsLock,
             _ => KeyCode::Unidentified,
         }
     }
@@ -157,6 +176,14 @@ pub enum MouseEventKind {
     SingleClick(MouseButton),
     /// Mouse button was double-clicked.
     DoubleClick(MouseButton),
+    /// Mouse wheel scrolled up.
+    ScrollUp,
+    /// Mouse wheel scrolled down.
+    ScrollDown,
+    /// Mouse wheel scrolled left.
+    ScrollLeft,
+    /// Mouse wheel scrolled right.
+    ScrollRight,
     /// Mouse cursor entered the terminal area.
     Entered,
     /// Mouse cursor left the terminal area.

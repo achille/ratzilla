@@ -119,7 +119,7 @@ impl MouseConfig {
 /// The event types for keyboard events.
 pub(super) const KEY_EVENT_TYPES: &[&str] = &["keydown"];
 
-/// Mouse event types (excluding wheel which needs special handling).
+/// Mouse event types.
 pub(super) const MOUSE_EVENT_TYPES: &[&str] = &[
     "mousemove",
     "mousedown",
@@ -129,6 +129,9 @@ pub(super) const MOUSE_EVENT_TYPES: &[&str] = &[
     "mouseenter",
     "mouseleave",
 ];
+
+/// Wheel event type (separate because WheelEvent is a different type from MouseEvent).
+pub(super) const WHEEL_EVENT_TYPES: &[&str] = &["wheel"];
 
 /// Translates mouse event pixel coordinates to terminal grid coordinates.
 ///
@@ -202,6 +205,45 @@ pub(super) fn create_mouse_event(
         ctrl: event.ctrl_key(),
         alt: event.alt_key(),
         shift: event.shift_key(),
+    }
+}
+
+/// Creates a MouseEvent from a web_sys::WheelEvent with coordinate translation.
+///
+/// WheelEvent inherits from MouseEvent, so we can read client_x/client_y for position.
+/// The scroll direction is determined from delta_y (vertical) and delta_x (horizontal).
+pub(super) fn create_wheel_event(
+    event: &web_sys::WheelEvent,
+    element: &Element,
+    config: &MouseConfig,
+) -> MouseEvent {
+    // WheelEvent inherits from MouseEvent — cast to read position
+    let mouse: &web_sys::MouseEvent = event.as_ref();
+    let (col, row) = mouse_to_grid_coords(mouse, element, config);
+
+    let dy = event.delta_y();
+    let dx = event.delta_x();
+
+    // Prefer vertical scroll; fall back to horizontal
+    let kind = if dy < 0.0 {
+        MouseEventKind::ScrollUp
+    } else if dy > 0.0 {
+        MouseEventKind::ScrollDown
+    } else if dx < 0.0 {
+        MouseEventKind::ScrollLeft
+    } else if dx > 0.0 {
+        MouseEventKind::ScrollRight
+    } else {
+        MouseEventKind::Unidentified
+    };
+
+    MouseEvent {
+        kind,
+        col,
+        row,
+        ctrl: mouse.ctrl_key(),
+        alt: mouse.alt_key(),
+        shift: mouse.shift_key(),
     }
 }
 
