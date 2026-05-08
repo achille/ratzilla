@@ -18,6 +18,7 @@ web-sys = { version = "0.3.81", features = [
     'CanvasRenderingContext2d',
     'Document',
     'DomRect',
+    'DomTokenList',
     'Element',
     'HtmlCanvasElement',
     'HtmlElement',

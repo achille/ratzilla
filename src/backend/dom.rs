@@ -562,42 +562,19 @@ impl Backend for DomBackend {
     }
 
     fn hide_cursor(&mut self) -> IoResult<()> {
+        // Remove cursor class from the current position.
         if let Some(pos) = self.cursor_position {
-            let cell_position = (pos.y * self.size.width + pos.x) as usize;
-
-            // Use CursorShape::None to clear cursor CSS
-            update_css_field(
-                CursorShape::None.get_css_attribute(),
-                &self.cells[cell_position],
-            )
-            .map_err(Error::from)?;
+            let i = (pos.y * self.size.width + pos.x) as usize;
+            if i < self.cells.len() {
+                let _ = self.cells[i].class_list().remove_1("rz-cursor");
+            }
         }
-
         Ok(())
     }
 
     fn show_cursor(&mut self) -> IoResult<()> {
-        // Remove cursor at last position
-        if let Some(pos) = self.last_cursor_position {
-            let cell_position = (pos.y * self.size.width + pos.x) as usize;
-            update_css_field(
-                CursorShape::None.get_css_attribute(),
-                &self.cells[cell_position],
-            )
-            .map_err(Error::from)?;
-        }
-
-        // Show cursor at current position
-        if let Some(pos) = self.cursor_position {
-            let cell_position = (pos.y * self.size.width + pos.x) as usize;
-
-            update_css_field(
-                self.options.cursor_shape.get_css_attribute(),
-                &self.cells[cell_position],
-            )
-            .map_err(Error::from)?;
-        }
-
+        // Cursor class is applied in set_cursor_position (called after
+        // show_cursor by ratatui) because the new position isn't known yet.
         Ok(())
     }
 
@@ -634,10 +611,26 @@ impl Backend for DomBackend {
         }
     }
 
-    /// Update cursor_position and last_cursor_position
+    /// Update cursor_position, remove the CSS class from the old cell,
+    /// and add it to the new cell.
     fn set_cursor_position<P: Into<Position>>(&mut self, position: P) -> IoResult<()> {
+        // Remove class from old position.
+        if let Some(old) = self.cursor_position {
+            let i = (old.y * self.size.width + old.x) as usize;
+            if i < self.cells.len() {
+                let _ = self.cells[i].class_list().remove_1("rz-cursor");
+            }
+        }
+
+        let pos = position.into();
         self.last_cursor_position = self.cursor_position;
-        self.cursor_position = Some(position.into());
+        self.cursor_position = Some(pos);
+
+        // Add class to new position.
+        let i = (pos.y * self.size.width + pos.x) as usize;
+        if i < self.cells.len() {
+            let _ = self.cells[i].class_list().add_1("rz-cursor");
+        }
 
         Ok(())
     }
