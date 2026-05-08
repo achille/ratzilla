@@ -128,6 +128,7 @@ pub(super) const MOUSE_EVENT_TYPES: &[&str] = &[
     "dblclick",
     "mouseenter",
     "mouseleave",
+    "contextmenu",
 ];
 
 /// Wheel event type (separate because WheelEvent is a different type from MouseEvent).

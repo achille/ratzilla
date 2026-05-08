@@ -614,11 +614,7 @@ impl Backend for DomBackend {
     }
 
     fn size(&self) -> IoResult<Size> {
-        let size = get_size();
-        Ok(Size::new(
-            size.width.saturating_sub(1),
-            size.height.saturating_sub(1),
-        ))
+        Ok(self.size)
     }
 
     fn window_size(&mut self) -> IoResult<WindowSize> {
@@ -676,6 +672,7 @@ impl WebEventHandler for DomBackend {
                 self.grid.clone(),
                 MOUSE_EVENT_TYPES,
                 move |event: web_sys::MouseEvent| {
+                    event.prevent_default();
                     let mouse_event = create_mouse_event(&event, &element, &config);
                     (callback.borrow_mut())(mouse_event);
                 },
